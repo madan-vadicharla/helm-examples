@@ -27,6 +27,31 @@ spec:
       serviceAccountName: {{ include "chart1.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: {{ .Chart.Name }}-initdb
+          image: docker.io/bitnami/postgresql:15.3.0-debian-11-47
+          env:
+          - name: PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-master-password
+                key: db-password
+          command:
+            - bash
+            - -c
+            - ls -al /etc/scripts/
+            - /etc/scripts/script1.sh
+          volumeMounts:
+          - name: {{ .Chart.Name }}-scripts-volume
+            mountPath: /etc/scripts
+      volumes:
+        - name: {{ .Chart.Name }}-scripts-volume
+          configMap:
+            name: {{ include "chart1.fullname" . }}-env
+            defaultMode: 0777
+            items:
+            - key: script1.sh
+              path: script1.sh
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
