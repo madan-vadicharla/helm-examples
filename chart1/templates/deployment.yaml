@@ -29,7 +29,8 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
         - name: {{ .Chart.Name }}-initdb
-          image: docker.io/bitnami/postgresql:15.3.0-debian-11-47
+          image: busybox # alpine # docker.io/bitnami/postgresql:15.3.0-debian-11-47
+          imagePullPolicy: IfNotPresent
           env:
           - name: PASSWORD
             valueFrom:
